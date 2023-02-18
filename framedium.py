@@ -89,8 +89,7 @@ def build_model(units=256, learning_rate=1e-4, l2=1e-2, activation=2, rate=0.5):
            optimizer=K.optimizers.Adam(learning_rate=learning_rate),
            loss='categorical_crossentropy',
            metrics=['accuracy'])
-  # Define some callback functions to be used by the model during
-  training
+  # Define some callback functions to be used by the model during training
   # reduce learning rate when val_accuracy has stopped improving
   lr_reduce = K.callbacks.ReduceLROnPlateau(monitor='val_accuracy',
                                             factor=0.6,
@@ -118,7 +117,7 @@ def fit_model(model, lr_reduce, early_stop, checkpoint):
   """function that trains the head classifier"""
   history = model.fit(features_train, y_train,
                       batch_size=32,
-                      epochs=20,
+                      epochs=50,
                       verbose=0,
                       callbacks=[lr_reduce, early_stop, checkpoint],
                       validation_data=(features_valid, y_test),
@@ -167,8 +166,7 @@ def f(x):
   if previous_best_model and evaluation[1] > previous_evaluation[1]:
     K.models.save_model(model, 'cifar10_best.h5', overwrite=True,
     include_optimizer=True)
-  # Get the dictionary containing each metric and the loss for each
-  epoch
+  # Get the dictionary containing each metric and the loss for each epoch
   # history_dict = history.history
   # print(history_dict)
   def plot_history(history):
@@ -217,7 +215,7 @@ print()
 print("=====================")
 print("=====================")
 print()
-optimizer.run_optimization(max_iter=30, verbosity=False)
+optimizer.run_optimization(max_iter=5, verbosity=False)
 optimizer.plot_acquisition()
 optimizer.plot_convergence()
 optimizer.save_report('bayes_opt.txt')
