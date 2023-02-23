@@ -228,6 +228,7 @@ optimizer.plot_acquisition()
 optimizer.plot_convergence()
 optimizer.save_report('bayes_opt.txt')
 
+
 # print optimized model
 activation_dict = {1: 'relu', 2: 'elu', 3: 'tanh'}
 print("""
@@ -260,3 +261,5 @@ with open(data_path, 'r') as f:
   lines = f.read().split('\n')
 for line in lines:
   print(line)
+
+
