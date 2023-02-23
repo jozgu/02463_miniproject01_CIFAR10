@@ -117,7 +117,7 @@ def fit_model(model, lr_reduce, early_stop, checkpoint):
   """function that trains the head classifier"""
   history = model.fit(features_train, y_train,
                       batch_size=32,
-                      epochs=50,
+                      epochs=20,
                       verbose=0,
                       callbacks=[lr_reduce, early_stop, checkpoint],
                       validation_data=(features_valid, y_test),
