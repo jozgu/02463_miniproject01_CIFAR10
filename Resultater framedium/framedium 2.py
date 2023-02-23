@@ -194,7 +194,7 @@ def f(x):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'valid'])
-    plt.show()
+    # plt.show()
   # plot the model accuracy and loss results
   plot_history(history)
   # delete the instantiated models from memory and clear the session
@@ -206,7 +206,7 @@ def f(x):
 # X_init = np.array([[int(16)]])
 # Y_init = f(X_init)
 # noise = 0.2
-optimizer = BayesianOptimization(f=f,
+opt = BayesianOptimization(f=f,
                                  domain=bounds,
                                  model_type='GP',
                                  kernel=kernel,
@@ -219,14 +219,18 @@ optimizer = BayesianOptimization(f=f,
                                  normalize_Y=False,
                                  maximize=True,
                                  verbosity=False)
+
+                              
+#%% OPRINDELIG efter "opt ="
+
 print()
 print("=====================")
 print("=====================")
 print()
-optimizer.run_optimization(max_iter=5, verbosity=False)
-optimizer.plot_acquisition()
-optimizer.plot_convergence()
-optimizer.save_report('bayes_opt.txt')
+opt.run_optimization(max_iter=15, verbosity=False)
+opt.plot_acquisition()
+opt.plot_convergence()
+opt.save_report('bayes_opt.txt')
 
 
 # print optimized model
@@ -238,13 +242,13 @@ Optimized Parameters:
 \t{4}:\t{5}
 \t{6}:\t{7}
 \t{8}:\t{9}
-""".format(bounds[0]["name"], optimizer.x_opt[0],
-           bounds[1]["name"], optimizer.x_opt[1],
+""".format(bounds[0]["name"], opt.x_opt[0],
+           bounds[1]["name"], opt.x_opt[1],
           #  bounds[2]["name"], optimizer.x_opt[2],                  #######################################
           #  bounds[3]["name"], activation_dict[optimizer.x_opt[3]],
           #  bounds[4]["name"], optimizer.x_opt[4]
           ))
-print("optimized accuracy: {0}".format(abs(optimizer.fx_opt)))
+print("optimized accuracy: {0}".format(abs(opt.fx_opt)))
 
 
 # reinstantiate the best model from saved file
@@ -263,3 +267,65 @@ for line in lines:
   print(line)
 
 
+# %% FRA EX 4 efter "opt ="
+opt.acquisition.exploration_weight=0.5
+
+opt.run_optimization(max_iter = 15)
+
+x_best = opt.X[np.argmin(opt.Y)]
+print("The best parameters obtained: n_estimators=" + str(x_best[0]) + ", max_depth=" + str(x_best[1]) + ", max_features=" + str(
+    x_best[2])  + ", criterion=" + str(
+    x_best[3]))
+
+
+
+
+## comparison between random search and bayesian optimization
+## we can plot the maximum oob per iteration of the sequence
+
+# collect the maximum each iteration of BO, note that it is also provided by GPOpt in Y_Best
+y_bo = np.maximum.accumulate(-opt.Y).ravel()
+# define iteration number
+xs = np.arange(1,21,1)
+
+plt.plot(xs, max_oob_per_iteration, 'o-', color = 'red', label='Random Search')
+plt.plot(xs, y_bo, 'o-', color = 'cyan', label='Bayesian Optimization')
+plt.legend()
+plt.xlabel('Iterations')
+plt.ylabel('Out of bag error')
+plt.title('Comparison between Random Search and Bayesian Optimization')
+plt.show()
+
+
+
+
+#We start by taking a look a the model subclass of our Bayesian optimization object
+print(opt.model.input_dim)
+#so there is 6 dimensions, that is 1 for each of n_estimators and depth which are discrete variables.
+# the remaining 4 is because one-out-of-K encoding is using for the categorical variables max_features and criterion
+#we can also look at kernel parameters
+print(opt.model.get_model_parameters_names())
+#and get the current fitted values
+print(opt.model.get_model_parameters())
+#To get a plot of the acquisition function we use the function opt.acquisition.acquisition_function
+#first we define a sensible grid for the first to parameters 
+#indexing='ij' ensures that x/y axes are not flipped (which is default):
+#we also add two extra axes for the categorical varibles and here fix these to 0 ('log2' and 'gini')
+#note that the acqusition function can actually take any value not only integers as it lives in the GP space (here 0.5 intervals)
+#and it is quite fast to evaluate - here in 40000 points
+n_feat = np.arange(1,101,0.5)
+max_d = np.arange(10,110,0.5)
+pgrid = np.array(np.meshgrid(n_feat, max_d,[1],[0],[1],[0],indexing='ij'))
+print(pgrid.reshape(6,-1).T.shape)
+#we then unfold the 4D array and simply pass it to the acqusition function
+acq_img = opt.acquisition.acquisition_function(pgrid.reshape(6,-1).T)
+#it is typical to scale this between 0 and 1:
+acq_img = (-acq_img - np.min(-acq_img))/(np.max(-acq_img - np.min(-acq_img)))
+#then fold it back into an image and plot
+acq_img = acq_img.reshape(pgrid[0].shape[:2])
+plt.figure()
+plt.imshow(acq_img.T, origin='lower',extent=[n_feat[0],n_feat[-1],max_d[0],max_d[-1]])
+plt.colorbar()
+plt.xlabel('n_features')
+plt.ylabel('max_depth')
+plt.title('Acquisition function');
