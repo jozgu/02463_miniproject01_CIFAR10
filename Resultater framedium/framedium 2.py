@@ -65,7 +65,7 @@ val_generator = val_datagen.flow(x_test,
                                  shuffle=False)
 features_valid = base_model.predict(val_generator)
 
-def build_model(units=256, learning_rate=1e-4, l2=1e-2, activation=2, rate=0.5):
+def build_model(units=256, learning_rate=1e-4, l2=1e-3, activation=1, rate=0.7):
   """function that builds a model for the head classifier"""
   # weights are initialized as per the he et al. method
   initializer = K.initializers.he_normal()
@@ -117,8 +117,8 @@ def fit_model(model, lr_reduce, early_stop, checkpoint):
   """function that trains the head classifier"""
   history = model.fit(features_train, y_train,
                       batch_size=32,
-                      epochs=20,
-                      verbose=0,
+                      epochs=1,
+                      verbose=1,
                       callbacks=[lr_reduce, early_stop, checkpoint],
                       validation_data=(features_valid, y_test),
                       shuffle=True)
@@ -131,9 +131,14 @@ def evaluate_model(model):
   return evaluation
 
 # define the kernel for the Bayesian surrogate model using the "radial basis function" (RBF)
-kernel = GPy.kern.RBF(input_dim=1, variance=1.0, lengthscale=1.0)
+kernel = GPy.kern.src.stationary.Matern52(input_dim=1, variance=1.0, lengthscale=1.0)
 # hyperparameter bounds
-bounds = [{'name': 'units', 'type': 'discrete', 'domain': (64, 128, 256, 512)}, {'name': 'learning_rate', 'type': 'discrete', 'domain': (1e-3, 1e-4, 1e-5, 1e-6)}, {'name': 'l2', 'type': 'discrete', 'domain': (1e-1, 1e-2, 1e-3)}, {'name': 'activation', 'type': 'discrete', 'domain': (1, 2, 3)}, {'name': 'rate', 'type': 'discrete', 'domain': (0.3, 0.5, 0.7)}]
+bounds = [{'name': 'units', 'type': 'discrete', 'domain': (64, 128, 256, 512)},
+          {'name': 'learning_rate', 'type': 'discrete', 'domain': (1e-3, 1e-4, 1e-5, 1e-6)},
+          #{'name': 'l2', 'type': 'discrete', 'domain': (1e-1, 1e-2, 1e-3)},
+          #{'name': 'activation', 'type': 'discrete', 'domain': (1, 2, 3)}, #################################
+          #{'name': 'rate', 'type': 'discrete', 'domain': (0.3, 0.5, 0.7)}
+          ]
 # Note: 'activation' domain parameters (1, 2, 3) correspond to strings ('relu', 'elu', 'tanh'); dictionary defined in build_model()
 # objective function for the model optimization:
 def f(x):
@@ -149,9 +154,10 @@ def f(x):
   model, lr_reduce, early_stop, checkpoint = build_model(
                                         units=int(x[:,0]),
                                         learning_rate=float(x[:,1]),
-                                        l2=float(x[:,2]),
-                                        activation=int(x[:,3]),
-                                        rate=float(x[:,4]))
+                                        # l2=float(x[:,2]),     ############################################
+                                        # activation=int(x[:,3]),
+                                        # rate=float(x[:,4])
+                                        )
   history = fit_model(model, lr_reduce, early_stop, checkpoint)
   evaluation = evaluate_model(model)
   print()
@@ -231,9 +237,10 @@ Optimized Parameters:
 \t{8}:\t{9}
 """.format(bounds[0]["name"], optimizer.x_opt[0],
            bounds[1]["name"], optimizer.x_opt[1],
-           bounds[2]["name"], optimizer.x_opt[2],
-           bounds[3]["name"], activation_dict[optimizer.x_opt[3]],
-           bounds[4]["name"], optimizer.x_opt[4]))
+          #  bounds[2]["name"], optimizer.x_opt[2],                  #######################################
+          #  bounds[3]["name"], activation_dict[optimizer.x_opt[3]],
+          #  bounds[4]["name"], optimizer.x_opt[4]
+          ))
 print("optimized accuracy: {0}".format(abs(optimizer.fx_opt)))
 
 
