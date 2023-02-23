@@ -33,7 +33,9 @@ def preprocess_data(X, Y):
 
 # load the Cifar10 dataset, 50,000 training images and 10,000 test images (here used as validation data)
 (x_train, y_train), (x_test, y_test) = K.datasets.cifar10.load_data()
-# preprocess the data using the application's preprocess_input method and convert the labels to one-hot encodings
+
+x_train, y_train, x_test, y_test = x_train[:100], y_train[:100], x_test[:20], y_test[:20]
+
 x_train, y_train = preprocess_data(x_train, y_train)
 x_test, y_test = preprocess_data(x_test, y_test)
 
@@ -117,7 +119,7 @@ def fit_model(model, lr_reduce, early_stop, checkpoint):
   """function that trains the head classifier"""
   history = model.fit(features_train, y_train,
                       batch_size=32,
-                      epochs=1,
+                      epochs=30,
                       verbose=1,
                       callbacks=[lr_reduce, early_stop, checkpoint],
                       validation_data=(features_valid, y_test),
