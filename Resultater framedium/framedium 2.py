@@ -132,7 +132,7 @@ def evaluate_model(model):
   evaluation = model.evaluate(features_valid, y_test)
   return evaluation
 
-# define the kernel for the Bayesian surrogate model using the "radial basis function" (RBF)
+# define the kernel for the Bayesian surrogate model using the Matern kernel
 kernel = GPy.kern.src.stationary.Matern52(input_dim=1, variance=1.0, lengthscale=1.0)
 # hyperparameter bounds
 bounds = [{'name': 'units', 'type': 'discrete', 'domain': (64, 128, 256, 512)},
