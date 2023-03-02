@@ -218,3 +218,4 @@ opt.acquisition.exploration_weight=0.5
 opt.run_optimization(max_iter = 25, verbosity = False)
 opt.plot_acquisition()
 opt.plot_convergence()
+# %%
