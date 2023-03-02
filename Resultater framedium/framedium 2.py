@@ -117,8 +117,16 @@ def evaluate_model(model):
 # define the kernel for the Bayesian surrogate model using the Matern kernel
 kernel = GPy.kern.src.stationary.Matern52(input_dim=50, variance=3.0, lengthscale=2.0)
 # hyperparameter bounds
+<<<<<<< Updated upstream
 bounds = [{'name': 'units', 'type': 'discrete', 'domain': (8, 16, 32, 64, 128, 256, 512, 1024, 2048)},
           {'name': 'learning_rate', 'type': 'discrete', 'domain': ((0.5)*1e-3, 1e-3, (1.5)*1e-3, (2)*1e-3, (2.5)*1e-3, (3)*1e-3, (3.5)*1e-3, (4)*1e-3, (4.5)*1e-3, (5)*1e-3, (5.5)*1e-3, (6)*1e-3, (6.5)*1e-3)},
+=======
+bounds = [{'name': 'units', 'type': 'discrete', 'domain': (16, 32, 64, 128, 256, 512)},
+          {'name': 'learning_rate', 'type': 'discrete', 'domain': (1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6)},
+          #{'name': 'l2', 'type': 'discrete', 'domain': (1e-1, 1e-2, 1e-3)},
+          #{'name': 'activation', 'type': 'discrete', 'domain': (1, 2, 3)}, #################################
+          #{'name': 'rate', 'type': 'discrete', 'domain': (0.3, 0.5, 0.7)}
+>>>>>>> Stashed changes
           ]
 # Note: 'activation' domain parameters (1, 2, 3) correspond to strings ('relu', 'elu', 'tanh'); dictionary defined in build_model()
 # objective function for the model optimization:
