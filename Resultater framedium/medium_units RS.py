@@ -169,7 +169,7 @@ opt = BayesianOptimization(f=f,
                                  domain=bounds,
                                  model_type='GP',
                                  kernel=kernel,
-                                 acquisition_type ='EI',
+                                 acquisition_type ='UCB', ########################################
                                  acquisition_jitter = 0.01,
                                  # X=X_init,
                                  # Y=-Y_init,
@@ -180,7 +180,6 @@ opt = BayesianOptimization(f=f,
                                  verbosity=False)
 
                               
-#%% OPRINDELIG efter "opt ="
 
 print()
 print("=====================")
@@ -252,13 +251,6 @@ def f2(x):
   del previous_best_model
   K.backend.clear_session()
   return evaluation[1]
-# define the dictionary for GPyOpt
-domain_random_sample = {
-        # "n_epochs": range(1, 11,2), 
-        # "n_epochs": range(10, 1,10), 
-        "n_units": (32, 64, 128, 256, 512),
-        "lr": (0.5e-3, 1e-3, 1.5e-3, 2e-3),
-        }
 
 domain =  [
           {'name': 'unit1', 'type': 'discrete', 'domain': (4, 8, 16, 32, 64, 128, 256, 512, 1024)},
