@@ -270,10 +270,12 @@ domain_random_sample = {
 
 
 obj_list = []
-param_list = list(ParameterSampler(domain_random_sample, n_iter=3, random_state=32))
+param_list = list(ParameterSampler(domain_random_sample, n_iter=10, random_state=32))
 print("param_list: ", param_list)
 for params in param_list:
     accuracy = f2(params)
     obj_list.append(accuracy)
     print(f"Accuracy with params {params} was {accuracy:.2f}")
 print("Accuracies for Random Search: ", obj_list)
+
+# %%
