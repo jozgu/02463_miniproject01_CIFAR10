@@ -169,7 +169,7 @@ opt = BayesianOptimization(f=f,
                                  domain=bounds,
                                  model_type='GP',
                                  kernel=kernel,
-                                 acquisition_type ='UCB', ########################################
+                                 acquisition_type ='PI', ########################################
                                  acquisition_jitter = 0.01,
                                  # X=X_init,
                                  # Y=-Y_init,
